@@ -46,41 +46,37 @@ const meeting = {
       throw error;
     }
   },
-
-  /**
-   * Creates a Zoom meeting with the given title, start time, duration, and host email and
-   * updates the given lesson plan with the meeting link.
-   * @param {string} lessonId - The ID of the lesson plan to update
-   * @param {string} courseTitle - The title of the course
-   * @param {string} startTime - The start time of the meeting in ISO format, e.g. '2025-05-20T10:00:00Z'
-   * @param {number} duration - The duration of the meeting in minutes
-   * @param {string} hostEmail - The email of the host of the meeting
-   * @returns {Promise<Object>} The updated lesson plan with a meeting link
-   */
-  scheduleLessonWithZoom: async (lessonId, courseTitle, startTime, duration, hostEmail) => {
+  scheduleZoomMeetingAndSave : async (req, res) => {
+    const { lessonId } = req.params;
+    const { courseTitle, startTime, duration, hostEmail } = req.body;
+  
     try {
-      const meetingData = await meeting.createZoomMeeting(courseTitle, startTime, duration, hostEmail);
-
-      // Ensure meeting creation was successful and the join_url exists
-      if (!meetingData || !meetingData.join_url) {
-        throw new Error("Failed to create Zoom meeting or get meeting link.");
+      const meetingData = await createZoomMeeting(courseTitle, startTime, duration, hostEmail);
+  
+      if (!meetingData?.join_url) {
+        throw new Error("Failed to create Zoom meeting or get join URL.");
       }
-
+  
       const updatedLesson = await LessonPlan.findByIdAndUpdate(
         lessonId,
-        {
-          meetingLink: meetingData.join_url,
-        },
+        { meetingLink: meetingData.join_url },
         { new: true }
       );
-
-      return updatedLesson;
+  
+      res.status(200).json({
+        success: true,
+        message: "Lesson scheduled with Zoom meeting.",
+        updatedLesson,
+      });
     } catch (error) {
-      console.error("Failed to create Zoom meeting and update lesson:", error.message);
-      throw error;
+      console.error("Error scheduling meeting:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to schedule lesson.",
+        error: error.message,
+      });
     }
   },
-
   /**
    * Retrieves a list of recording files for a given Zoom meeting ID
    * @param {string} meetingId - The ID of the Zoom meeting to retrieve recordings for
@@ -106,43 +102,45 @@ const meeting = {
     }
   },
 
-  /**
-   * Updates a lesson plan with a recording URL retrieved from Zoom for the given meeting ID
-   * @param {string} lessonId - The ID of the lesson plan to update
-   * @param {string} zoomMeetingId - The ID of the Zoom meeting to retrieve recordings for
-   * @returns {Promise<Object>} The updated lesson plan with the recording URL
-   */
-  updateRecordingUrl: async (lessonId, zoomMeetingId) => {
+  updateLessonWithRecording : async (req, res) => {
+    const { lessonId } = req.params;
+    const { zoomMeetingId } = req.body;
+  
     try {
-      const recordingFiles = await meeting.getZoomRecordings(zoomMeetingId);
-
-      // Check if we got valid recording files
-      if (!recordingFiles || recordingFiles.length === 0) {
+      const recordingFiles = await getZoomRecordings(zoomMeetingId);
+  
+      if (!recordingFiles?.length) {
         throw new Error("No recordings found for this meeting.");
       }
-
-      // Extract a recording URL (e.g., first MP4 file)
+  
       const mp4Recording = recordingFiles.find(file => file.file_type === 'MP4');
-      const recordingUrl = mp4Recording?.play_url || null;
-
+      const recordingUrl = mp4Recording?.play_url;
+  
       if (!recordingUrl) {
         throw new Error("No MP4 recording available.");
       }
-
+  
       const updatedLesson = await LessonPlan.findByIdAndUpdate(
         lessonId,
-        {
-          recordingUrl: recordingUrl,
-        },
+        { recordingUrl },
         { new: true }
       );
-
-      return updatedLesson;
+  
+      res.status(200).json({
+        success: true,
+        message: "Recording URL updated.",
+        updatedLesson,
+      });
     } catch (error) {
-      console.error("Failed to update recording URL in lesson:", error.message);
-      throw error;
+      console.error("Error updating recording URL:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update recording URL.",
+        error: error.message,
+      });
     }
   }
 }
 
 module.exports = meeting
+
