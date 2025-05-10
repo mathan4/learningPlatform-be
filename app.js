@@ -5,13 +5,13 @@ const cookieParser = require('cookie-parser');
 
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
+const meetingRouter = require('./routes/meetingRoutes');
 
 const mongoose = require('mongoose')
 const cors = require('cors')
 
 const {MONGODB_URI} =require('./utils/config');
 const logger = require('./utils/logger');
-
 
 
 mongoose.connect(MONGODB_URI)
@@ -28,6 +28,7 @@ app.use(cookieParser())
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/meetings', meetingRouter)
 
 
 
