@@ -1,14 +1,17 @@
 const express = require('express')
 const app = express()
 const {PORT} = require('./utils/config')
+const cookieParser = require('cookie-parser');
 
 const authRouter = require('./routes/authRoutes');
+const userRouter = require('./routes/userRoutes');
 
 const mongoose = require('mongoose')
 const cors = require('cors')
 
 const {MONGODB_URI} =require('./utils/config');
 const logger = require('./utils/logger');
+
 
 
 mongoose.connect(MONGODB_URI)
@@ -20,9 +23,11 @@ db.once('open', () => console.log(`Connected successfully to database`))
 app.use(cors())
 app.use(express.json())
 app.use(logger)
+app.use(cookieParser())
 
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
 
 
 
