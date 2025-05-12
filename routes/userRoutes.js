@@ -19,4 +19,4 @@ userRouter.post('/mentorRequestUpdate/:id',verifyToken,allowRoles(['admin']),upd
 userRouter.delete('/:id', verifyToken, allowRoles(['admin']), deleteUserById)
 
 
-module.exports=userRouter
+module.exports=userRouter 

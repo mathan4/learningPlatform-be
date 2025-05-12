@@ -3,6 +3,8 @@ const { getZoomAccessToken } = require("../utils/zoomService");
 const axios = require('axios');
 
 const meeting = {
+
+
   /**
    * Creates a Zoom meeting with the given title, start time, duration, and host email
    * @param {string} courseTitle - The title of the course
@@ -46,12 +48,27 @@ const meeting = {
       throw error;
     }
   },
+
+
+
+  /**
+   * Schedules a Zoom meeting for a lesson and updates the lesson plan in the DB
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @param {string} lessonId - The ID of the lesson to schedule
+   * @param {string} courseTitle - The title of the course
+   * @param {string} startTime - The start time of the meeting in ISO format, e.g. '2025-05-20T10:00:00Z'
+   * @param {number} duration - The duration of the meeting in minutes
+   * @param {string} hostEmail - The email of the host of the meeting
+   * @returns {Promise<Response>} The response to the request
+   */
+
   scheduleZoomMeetingAndSave : async (req, res) => {
     const { lessonId } = req.params;
     const { courseTitle, startTime, duration, hostEmail } = req.body;
   
     try {
-      const meetingData = await createZoomMeeting(courseTitle, startTime, duration, hostEmail);
+      const meetingData = await meeting.createZoomMeeting(courseTitle, startTime, duration, hostEmail);
   
       if (!meetingData?.join_url) {
         throw new Error("Failed to create Zoom meeting or get join URL.");
@@ -77,6 +94,9 @@ const meeting = {
       });
     }
   },
+
+
+
   /**
    * Retrieves a list of recording files for a given Zoom meeting ID
    * @param {string} meetingId - The ID of the Zoom meeting to retrieve recordings for
@@ -102,12 +122,25 @@ const meeting = {
     }
   },
 
+
+
+
+/**
+ * Updates the lesson plan with the recording URL of a Zoom meeting.
+ * 
+ * @async
+ * @param {Request} req - Express request object containing `params` with `lessonId` and `body` with `zoomMeetingId`.
+ * @param {Response} res - Express response object used to send the response.
+ * @throws Will throw an error if no recordings are found or if no MP4 recording is available.
+ * @returns {Promise<Response>} - A JSON response with the updated lesson if successful or an error message.
+ */
+
   updateLessonWithRecording : async (req, res) => {
     const { lessonId } = req.params;
     const { zoomMeetingId } = req.body;
   
     try {
-      const recordingFiles = await getZoomRecordings(zoomMeetingId);
+      const recordingFiles = await meeting.getZoomRecordings(zoomMeetingId);
   
       if (!recordingFiles?.length) {
         throw new Error("No recordings found for this meeting.");

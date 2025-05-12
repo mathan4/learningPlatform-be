@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
 const meetingRouter = require('./routes/meetingRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+const paymentRouter = require('./routes/paymentRoutes');
 
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -29,6 +31,8 @@ app.use(cookieParser())
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/meetings', meetingRouter)
+app.use('/api/v1/reviews', reviewRouter)
+app.use('/api/v1/payments', paymentRouter)
 
 
 

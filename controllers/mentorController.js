@@ -44,7 +44,7 @@ const mentorController = {
         mentors,
       });
     } catch (err) {
-      console.error('Error fetching tutors:', err);
+      console.error('Error fetching mentors:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   },
