@@ -4,7 +4,7 @@ const { scheduleZoomMeetingAndSave, updateLessonWithRecording } = require('../co
 const { verifyToken, allowRoles } = require('../middlewares/auth');
 
 // Route to create a Zoom meeting and update the lesson plan with the meeting link
-meetingRouter.post('/schedule-lesson/:lessonId',verifyToken,allowRoles(['student']),scheduleZoomMeetingAndSave)
+meetingRouter.post('/schedule-lesson/:lessonId',verifyToken,allowRoles(['mentor']),scheduleZoomMeetingAndSave)
 
 // Route to update the recording URL of a lesson after the Zoom meeting has ended and recordings are available
 meetingRouter.post('/update-recording/:lessonId',verifyToken,updateLessonWithRecording)

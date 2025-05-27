@@ -25,7 +25,16 @@ const db = mongoose.connection
 db.on('error', (errorMessage) => console.log(errorMessage))
 db.once('open', () => console.log(`Connected successfully to database`))
 
-app.use(cors())
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://learning-platform-fe-coral.vercel.app']
+    : ['http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(logger)
 app.use(cookieParser())

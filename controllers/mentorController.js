@@ -1,3 +1,4 @@
+const lessonPlanModel = require('../models/lessonPlanModel');
 const Mentor = require('../models/mentorProfileModel');
 
 const mentorController = {
@@ -137,7 +138,21 @@ const mentorController = {
       console.error('Error fetching subjects:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
+  },
+  calculateMentorEarnings : async (req, res) => {
+  try {
+    const completedLessons = await lessonPlanModel.find({
+      mentorId: req.userId,
+      status: "completed",
+    });
+
+    const totalEarnings = completedLessons.reduce((sum, lessonPlanModel) => sum + lessonPlanModel.price, 0);
+
+    res.json({ totalEarnings, completedLessonsCount: completedLessons.length });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
   }
+}
 };
 
 module.exports = mentorController;

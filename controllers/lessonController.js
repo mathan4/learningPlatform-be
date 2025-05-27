@@ -18,7 +18,7 @@ const lessonController={
 getMentorLessons : async (req, res) => {
   try {
     const lessons = await Lesson.find({ mentorId: req.userId })
-      .populate("studentId", "name email")
+      .populate("studentId", "firstName lastName email")
       .sort({ date: 1 });
     res.json(lessons);
   } catch (err) {
