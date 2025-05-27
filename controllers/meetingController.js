@@ -1,6 +1,7 @@
 const LessonPlan = require("../models/lessonPlanModel");
 const { getZoomAccessToken } = require("../utils/zoomService");
 const axios = require("axios");
+const { ZOOM_ACCOUNT_ID }=require('../utils/config')
 
 const meeting = {
   /**

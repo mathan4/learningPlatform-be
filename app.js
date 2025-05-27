@@ -27,9 +27,10 @@ db.on('error', (errorMessage) => console.log(errorMessage))
 db.once('open', () => console.log(`Connected successfully to database`))
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? [FRONTEND_URL]
-    : ['http://localhost:5173'],
+  origin:[
+    'https://learning-platform-fe-coral.vercel.app',
+    'http://localhost:5173' 
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
