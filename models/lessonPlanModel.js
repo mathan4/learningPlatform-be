@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const LessonSchema = new mongoose.Schema({
-  tutorId: {
+  mentorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -36,7 +36,7 @@ const LessonSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["scheduled", "completed", "canceled"],
+    enum: ["pending","scheduled", "completed", "canceled"],
     default: "scheduled",
   },
   meetingLink: { type: String },
@@ -47,4 +47,5 @@ const LessonSchema = new mongoose.Schema({
   },
 })
 
-module.exports = mongoose.model("LessonPlan", LessonSchema);
+module.exports = mongoose.model("Lesson", LessonSchema);
+

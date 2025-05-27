@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../utils/config');
 
+
 const authController = {
     register: async (req, res) => {
         try {

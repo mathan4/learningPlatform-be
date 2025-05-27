@@ -1,7 +1,5 @@
 const stripe = require("stripe");
 const Payment = require("../models/paymentCollectionModel");
-const Lesson = require("../models/lessonPlanModel");
-const User = require("../models/userModel");
 const { STRIPE_SECRET_KEY } = require("../utils/config");
 
 const stripeClient = stripe(STRIPE_SECRET_KEY);

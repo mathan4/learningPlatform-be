@@ -5,7 +5,9 @@ const { verifyToken, allowRoles } = require('../middlewares/auth')
 const { getAllMentors } = require('../controllers/mentorController')
 
 
-mentorRouter.get('/',verifyToken,allowRoles(['student']),getAllMentors)
+mentorRouter.get('/',verifyToken,allowRoles(['admin','student']),getAllMentors)
+
+
 
 
 

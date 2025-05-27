@@ -3,8 +3,6 @@ const { getZoomAccessToken } = require("../utils/zoomService");
 const axios = require('axios');
 
 const meeting = {
-
-
   /**
    * Creates a Zoom meeting with the given title, start time, duration, and host email
    * @param {string} courseTitle - The title of the course

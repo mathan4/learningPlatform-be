@@ -8,12 +8,15 @@ const userRouter = require('./routes/userRoutes');
 const meetingRouter = require('./routes/meetingRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
+const LessonRouter = require('./routes/lessonRoutes');
 
 const mongoose = require('mongoose')
 const cors = require('cors')
 
 const {MONGODB_URI} =require('./utils/config');
 const logger = require('./utils/logger');
+const mentorRouter = require('./routes/mentorRoutes');
+
 
 
 mongoose.connect(MONGODB_URI)
@@ -28,11 +31,16 @@ app.use(logger)
 app.use(cookieParser())
 
 
+app.use('/uploads', express.static('uploads'));
+
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/meetings', meetingRouter)
 app.use('/api/v1/reviews', reviewRouter)
 app.use('/api/v1/payments', paymentRouter)
+app.use('/api/v1/mentors',mentorRouter)
+app.use('/api/v1/lessons', LessonRouter)
 
 
 
