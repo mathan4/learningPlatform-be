@@ -14,6 +14,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 
 const {MONGODB_URI} =require('./utils/config');
+const {FRONTEND_URL} = require('./utils/config');
 const logger = require('./utils/logger');
 const mentorRouter = require('./routes/mentorRoutes');
 
@@ -27,12 +28,15 @@ db.once('open', () => console.log(`Connected successfully to database`))
 
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://learning-platform-fe-coral.vercel.app']
+    ? [FRONTEND_URL]
     : ['http://localhost:5173'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
+
+require("./utils/lessonCron")
 
 app.use(cors(corsOptions))
 app.use(express.json())

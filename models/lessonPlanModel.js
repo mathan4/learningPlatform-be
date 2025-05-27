@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const LessonSchema = new mongoose.Schema({
   mentorId: {
@@ -36,16 +36,17 @@ const LessonSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending","scheduled", "completed", "canceled"],
+    enum: ["pending", "scheduled", "completed", "canceled"],
     default: "scheduled",
   },
   meetingLink: { type: String },
   recordingUrl: { type: String },
+  recordingChecked: { type: Boolean, default: false },
+
   createdAt: {
     type: Date,
     default: Date.now,
   },
-})
+});
 
 module.exports = mongoose.model("Lesson", LessonSchema);
-

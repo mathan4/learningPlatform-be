@@ -146,7 +146,8 @@ const mentorController = {
       status: "completed",
     });
 
-    const totalEarnings = completedLessons.reduce((sum, lessonPlanModel) => sum + lessonPlanModel.price, 0);
+    const totalEarnings = completedLessons.reduce((sum, lesson) => sum + lesson.price, 0);
+    console.log(totalEarnings);
 
     res.json({ totalEarnings, completedLessonsCount: completedLessons.length });
   } catch (error) {

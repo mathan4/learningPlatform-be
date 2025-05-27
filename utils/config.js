@@ -8,6 +8,7 @@ const ZOOM_ACCOUNT_ID = process.env.ZOOM_ACCOUNT_ID;
 const ZOOM_CLIENT_ID = process.env.ZOOM_CLIENT_ID;
 const ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
 const STRIPE_SECRET_KEY=process.env.STRIPE_SECRET_KEY;
+const FRONTEND_URL=process.env.FRONTEND_URL;
 
 const PORT = process.env.PORT;
 
@@ -18,6 +19,7 @@ module.exports = {
     ZOOM_CLIENT_ID,
     ZOOM_CLIENT_SECRET,
     STRIPE_SECRET_KEY,
+    FRONTEND_URL,
     EMAIL_USER,
     EMAIL_PASS,
     PORT
