@@ -45,7 +45,7 @@ app.use(logger)
 app.use(cookieParser())
 
 
-app.use('/uploads', express.static('uploads'));
+app.use('/api/v1/uploads', express.static('uploads'));
 
 
 app.use('/api/v1/auth', authRouter);
