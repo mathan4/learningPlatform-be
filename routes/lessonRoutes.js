@@ -6,6 +6,6 @@ const { getStudentLessons, getMentorLessons, bookLesson, cancelLesson } = requir
 LessonRouter.get("/student", verifyToken,allowRoles(['student','admin']), getStudentLessons);
 LessonRouter.get("/mentor", verifyToken,allowRoles(['mentor']), getMentorLessons);
 LessonRouter.post("/book", verifyToken,allowRoles(['student']), bookLesson);
-LessonRouter.delete("/:id",verifyToken,allowRoles(['student','mentor']), cancelLesson);
+LessonRouter.delete("/:id",verifyToken, cancelLesson);
 
 module.exports = LessonRouter;
