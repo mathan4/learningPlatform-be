@@ -1,8 +1,8 @@
 const express = require('express');
 const paymentRouter = express.Router();
 const { verifyToken, allowRoles } = require('../middlewares/auth');
-const { createPaymentIntent } = require('../controllers/paymentController');
+const { createCheckoutSession } = require('../controllers/paymentController');
 
-paymentRouter.post('/create-payment-intent',verifyToken,allowRoles(['student']),createPaymentIntent)
+paymentRouter.post('/checkout-session',verifyToken,allowRoles(['student']),createCheckoutSession)
 
 module.exports=paymentRouter

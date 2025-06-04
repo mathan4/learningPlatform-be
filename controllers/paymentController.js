@@ -1,54 +1,61 @@
 const stripe = require("stripe");
 const Payment = require("../models/paymentCollectionModel");
-const { STRIPE_SECRET_KEY } = require("../utils/config");
+const { STRIPE_SECRET_KEY, FRONTEND_URL } = require("../utils/config");
 
 const stripeClient = stripe(STRIPE_SECRET_KEY);
 
 const paymentController = {
   /**
-   * Creates a payment intent using Stripe and stores the payment details in the database.
-   * 
-   * @async
-   * @param {Request} req - Express request object containing `body` with `studentId`, `mentorId`, `amount`, and `lessonId`.
-   * @param {Response} res - Express response object used to send the client secret and payment intent ID.
-   * @returns {Promise<void>} Sends a response with the client secret and payment intent ID or an error message.
-   * @throws Will log and return an error message if the payment intent creation fails.
+   * Creates a Stripe Checkout Session and saves a pending payment record.
    */
-
-  createPaymentIntent: async (req, res) => {
+  createCheckoutSession: async (req, res) => {
     const { studentId, mentorId, amount, lessonId } = req.body;
 
     try {
-      const paymentIntent = await stripeClient.paymentIntents.create({
-        amount: amount * 100,
-        currency: "usd",
-        automatic_payment_methods: {
-          enabled: true,
+      // Create Checkout Session
+      const session = await stripeClient.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Lesson Payment",
+              },
+              unit_amount: amount * 100, // in cents
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          studentId,
+          mentorId,
+          lessonId,
         },
+        success_url: `${FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${FRONTEND_URL}/payment-cancelled`,
       });
 
+      // Save to DB as pending
       const payment = new Payment({
         lessonId,
         studentId,
-        mentorId,
+        tutorId: mentorId, 
         amount,
         currency: "USD",
         status: "pending",
-        stripePaymentId: paymentIntent.id,
+        stripeSessionId: session.id,
       });
 
       await payment.save();
 
-      // Send back the client secret to the frontend for completing the payment
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-      });
-    } catch (error) {
-      console.error("Error creating payment intent:", err);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.send({ url: session.url });
+    } catch (err) {
+      console.error("Error creating checkout session:", err);
+      res.status(500).json({ error: "Failed to create checkout session" });
     }
-  }
+  },
 };
 
 module.exports = paymentController;
