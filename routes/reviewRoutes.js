@@ -8,7 +8,7 @@ const reviewRouter = express.Router();
 reviewRouter.post("/",verifyToken,allowRoles(['student']), createReview);
 
 // Get all reviews for a tutor
-reviewRouter.get("/tutor/:tutorId",verifyToken,allowRoles(['admin','student']), getTutorReviews);
+reviewRouter.get("/mentor/:mentorId",verifyToken,allowRoles(['admin','student']), getTutorReviews);
 
 // Get all reviews from a student
 reviewRouter.get("/student/:studentId",verifyToken,allowRoles(['admin']), getStudentReviews);
