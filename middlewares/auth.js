@@ -3,57 +3,65 @@ const { JWT_SECRET } = require('../utils/config');
 const User = require('../models/userModel');
 
 const auth = {
-    verifyToken: async (req, res, next) => {
-        try {
-            const token = req.cookies.token || req.headers['authorization'];
+  verifyToken: async (req, res, next) => {
+    try {
+      let token = req.cookies.token;
 
-            if (!token) {
-                return res.status(401).json({ message: 'No token provided' });
-            }
-
-            // verify the token
-            const decodedToken = jwt.verify(token, JWT_SECRET);
-
-            if (!decodedToken) {
-                return res.status(401).json({ message: 'Invalid token' });
-            }
-
-            // attach user to request
-            req.userId = decodedToken.id;
-
-            next();
-        } catch (error) {
-            return res.status(401).json({ message: 'Unauthorized' });
+      // If not in cookies, try Authorization header
+      if (!token && req.headers.authorization) {
+        const authHeader = req.headers.authorization;
+        if (authHeader.startsWith('Bearer ')) {
+          token = authHeader.split(' ')[1];
+        } else {
+          token = authHeader; // fallback for token without Bearer
         }
-    },
-    allowRoles: (roles) => {
-        return async (req, res, next) => {
-            try {
-                if (!req.userId) {
-                    return res.status(401).json({ message: 'Unauthorized' });
-                }
+      }
 
-                // get the userId from the request
-                const userId = req.userId;
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
 
-                // get the user from the database
-                const user = await User.findById(userId);
+      // verify the token
+      const decoded = jwt.verify(token, JWT_SECRET);
 
-                if (!user) {
-                    return res.status(401).json({ message: 'Unauthorized' });
-                }
+      if (!decoded || !decoded.id) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
 
-                // check if the user has the required role
-                if (!roles.includes(user.role)) {
-                    return res.status(403).json({ message: 'Forbidden' });
-                }
+      req.userId = decoded.id; // Make sure your token uses `.id` not `._id`
 
-                next();
-            } catch (error) {
-                return res.status(403).json({ message: 'Forbidden' });
-            }
-        }
+      next();
+    } catch (error) {
+      console.error("verifyToken error:", error.message);
+      return res.status(401).json({ message: 'Unauthorized' });
     }
-}
+  },
+
+  allowRoles: (roles) => {
+    return async (req, res, next) => {
+      try {
+        if (!req.userId) {
+          return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+          return res.status(401).json({ message: 'Unauthorized - user not found' });
+        }
+
+        if (!roles.includes(user.role)) {
+          return res.status(403).json({ message: 'Forbidden - insufficient role' });
+        }
+
+        req.user = user; // optionally attach full user object
+        next();
+      } catch (error) {
+        console.error("allowRoles error:", error.message);
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    };
+  }
+};
 
 module.exports = auth;
