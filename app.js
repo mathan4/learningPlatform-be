@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const {PORT} = require('./utils/config')
 const cookieParser = require('cookie-parser');
+const { generalLimiter, authLimiter } = require('./middleware/rateLimiter');
 
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -9,6 +10,7 @@ const meetingRouter = require('./routes/meetingRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 const LessonRouter = require('./routes/lessonRoutes');
+const courseRouter=require('./routes/courseRoutes')
 
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -48,13 +50,14 @@ app.use(cookieParser())
 app.use('/api/v1/uploads', express.static('uploads'));
 
 
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/meetings', meetingRouter)
-app.use('/api/v1/reviews', reviewRouter)
-app.use('/api/v1/payments', paymentRouter)
-app.use('/api/v1/mentors',mentorRouter)
-app.use('/api/v1/lessons', LessonRouter)
+app.use('/api/v1/auth', authRouter,authLimiter);
+app.use('/api/v1/users', userRouter,generalLimiter);
+app.use('/api/v1/meetings', meetingRouter,generalLimiter)
+app.use('/api/v1/reviews', reviewRouter,generalLimiter)
+app.use('/api/v1/payments', paymentRouter,generalLimiter)
+app.use('/api/v1/mentors',mentorRouter,generalLimiter)
+app.use('/api/v1/lessons', LessonRouter,generalLimiter)
+app.use('/api/v1/courses', courseRouter,generalLimiter)
 
 
 
