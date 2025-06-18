@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const {PORT} = require('./utils/config')
 const cookieParser = require('cookie-parser');
-const { generalLimiter, authLimiter } = require('./middleware/rateLimiter');
+const { generalLimiter, authLimiter } = require('./middlewares/rateLimiter');
 
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
