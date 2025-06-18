@@ -2,6 +2,11 @@ const stripe = require("stripe");
 const Payment = require("../models/paymentCollectionModel");
 const { STRIPE_SECRET_KEY, FRONTEND_URL } = require("../utils/config");
 
+// Validate Stripe secret key before initializing
+if (!STRIPE_SECRET_KEY) {
+  throw new Error("STRIPE_SECRET_KEY environment variable is not set. Please check your .env file.");
+}
+
 const stripeClient = stripe(STRIPE_SECRET_KEY);
 
 const paymentController = {
