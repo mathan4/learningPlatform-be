@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const lessonPlanModel = require("../models/lessonPlanModel");
 const Mentor = require("../models/mentorProfileModel");
+const Course = require("../models/courseModel");
 
 const mentorController = {
   getAllMentors: async (req, res) => {
@@ -34,12 +35,10 @@ const mentorController = {
 
       const matchStage = {};
 
-      // Subject filter
       if (subject?.trim()) {
         matchStage.subjects = { $in: [subject.trim()] };
       }
 
-      // Hourly rate filter
       if (minRate || maxRate) {
         matchStage.hourlyRate = {};
         if (minRate) {
@@ -57,7 +56,6 @@ const mentorController = {
         }
       }
 
-      // Day filter
       if (day?.trim()) {
         matchStage.availability = {
           $elemMatch: {
@@ -66,16 +64,13 @@ const mentorController = {
         };
       }
 
-      // Search regex
       const searchRegex = search?.trim() ? new RegExp(search.trim(), "i") : null;
 
-      // Sort object
       const sortObject = {};
       if (sortBy === "firstName") sortObject["user.firstName"] = order === "asc" ? 1 : -1;
       else if (sortBy === "lastName") sortObject["user.lastName"] = order === "asc" ? 1 : -1;
       else sortObject[sortBy] = order === "asc" ? 1 : -1;
 
-      // Aggregation pipeline
       const aggregationPipeline = [
         { $match: matchStage },
         {
@@ -89,7 +84,6 @@ const mentorController = {
         { $unwind: "$user" },
       ];
 
-      // Search stage
       if (searchRegex) {
         aggregationPipeline.push({
           $match: {
@@ -102,18 +96,15 @@ const mentorController = {
         });
       }
 
-      // Count pipeline for total
       const countPipeline = [...aggregationPipeline, { $count: "count" }];
       const countResult = await Mentor.aggregate(countPipeline);
       const totalMentors = countResult[0]?.count || 0;
       const totalPages = Math.ceil(totalMentors / limitNum);
 
-      // Pagination and sorting
       aggregationPipeline.push({ $sort: sortObject });
       aggregationPipeline.push({ $skip: skip });
       aggregationPipeline.push({ $limit: limitNum });
 
-      // Execute main query
       const mentors = await Mentor.aggregate(aggregationPipeline);
 
       if (pageNum > totalPages && totalPages > 0) {
@@ -164,6 +155,24 @@ const mentorController = {
       });
     } catch (error) {
       res.status(500).json({ error: "Server error" });
+    }
+  },
+
+  getLessonsByCourseId: async (req, res) => {
+    try {
+      const courseId = req.params.courseId;
+
+      const lessons = await lessonPlanModel.find({
+        courseId,
+      })
+        .populate("studentId", "firstName lastName email")
+        .populate("mentorId", "firstName lastName email")
+        .sort({ startTime: 1 });
+
+      res.status(200).json({ success: true, data: lessons });
+    } catch (error) {
+      console.error("Error fetching lessons for course:", error);
+      res.status(500).json({ error: "Failed to fetch course lessons" });
     }
   },
 };
