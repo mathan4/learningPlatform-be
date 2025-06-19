@@ -26,27 +26,38 @@ cron.schedule("*/10 * * * *", async () => {
     });
 
     for (const lesson of lessonsToUpdate) {
-      const match = lesson.meetingLink.match(/\/j\/(\d+)/);
-      const zoomMeetingId = match ? match[1] : null;
+      const lessonsToUpdate = await LessonPlan.find({
+        status: "completed",
+        recordingUrl: { $exists: false },
+        meetingId: { $exists: true, $ne: null },
+      });
 
-      if (!zoomMeetingId) {
-        console.warn(` Could not extract Zoom meeting ID from link: ${lesson.meetingLink}`);
-        continue;
-      }
+      for (const lesson of lessonsToUpdate) {
+        const zoomMeetingId = lesson.meetingId;
 
-      try {
-        const files = await getZoomRecordings(zoomMeetingId);
-
-        const mp4 = files.find((f) => f.file_type === "MP4");
-        if (mp4?.play_url) {
-          lesson.recordingUrl = mp4.play_url;
-          await lesson.save();
-          console.log(` Updated recording for lesson ${lesson._id}`);
-        } else {
-          console.warn(` No MP4 recording found for lesson ${lesson._id}`);
+        if (!zoomMeetingId) {
+          console.warn(`Missing meetingId for lesson ${lesson._id}`);
+          continue;
         }
-      } catch (err) {
-        console.error(` Error fetching recordings for lesson ${lesson._id}:`, err.message);
+
+        try {
+          const files = await getZoomRecordings(zoomMeetingId);
+          const mp4 = files.find((f) => f.file_type === "MP4");
+
+          if (mp4?.play_url) {
+            lesson.recordingUrl = mp4.play_url;
+            lesson.recordingChecked = true;
+            await lesson.save();
+            console.log(`✅ Recording URL updated for lesson ${lesson._id}`);
+          } else {
+            console.warn(`⚠️ No MP4 recording found for lesson ${lesson._id}`);
+          }
+        } catch (err) {
+          console.error(
+            `❌ Error fetching recordings for lesson ${lesson._id}:`,
+            err.message
+          );
+        }
       }
     }
   } catch (err) {

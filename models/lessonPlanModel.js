@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const LessonSchema = new mongoose.Schema({
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+    required: true,
+  },
   mentorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -39,10 +44,19 @@ const LessonSchema = new mongoose.Schema({
     enum: ["pending", "scheduled", "completed", "canceled"],
     default: "scheduled",
   },
-  meetingLink: { type: String },
-  recordingUrl: { type: String },
-  recordingChecked: { type: Boolean, default: false },
-
+  meetingId: {
+    type: String, // 🆕 Used to fetch Zoom recordings
+  },
+  meetingLink: {
+    type: String,
+  },
+  recordingUrl: {
+    type: String,
+  },
+  recordingChecked: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
